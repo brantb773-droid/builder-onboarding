@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>owockibot — builder onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0d1015;
+    --panel:#141922;
+    --panel-2:#1b2230;
+    --line:#2a3140;
+    --paper:#ece7db;
+    --paper-dim:#a9a89c;
+    --amber:#ffb238;
+    --amber-dim:#8a6420;
+    --teal:#5fd9c4;
+    --danger:#ff7a63;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:var(--amber);}
+  a:focus-visible, button:focus-visible, summary:focus-visible{
+    outline:2px solid var(--teal);
+    outline-offset:3px;
+    border-radius:3px;
+  }
+
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px;height:7px;
+    background:var(--amber);
+    border-radius:50%;
+    box-shadow:0 0 8px var(--amber);
+    flex:none;
+  }
+
+  h1,h2,h3{font-family:var(--mono);margin:0;font-weight:600;letter-spacing:-0.01em;}
+
+  /* ===== TOP BAR ===== */
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    background:rgba(13,16,21,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:920px;margin:0 auto;padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .brand{
+    font-family:var(--mono);font-size:13px;color:var(--paper);
+    display:flex;align-items:center;gap:8px;white-space:nowrap;
+  }
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 6px var(--teal);}
+  .channels{
+    display:flex;gap:2px;overflow-x:auto;
+    font-family:var(--mono);font-size:11px;
+    scrollbar-width:none;
+  }
+  .channels::-webkit-scrollbar{display:none;}
+  .channels a{
+    color:var(--paper-dim);text-decoration:none;
+    padding:6px 10px;border-radius:4px;white-space:nowrap;
+    border:1px solid transparent;
+  }
+  .channels a:hover{color:var(--paper);border-color:var(--line);}
+
+  /* ===== HERO ===== */
+  .hero{
+    padding:72px 0 56px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero h1{
+    font-size:clamp(30px,5vw,46px);
+    line-height:1.12;
+    margin:18px 0 16px;
+    color:var(--paper);
+  }
+  .hero h1 em{
+    font-style:normal;color:var(--amber);
+  }
+  .hero p.sub{
+    max-width:56ch;
+    color:var(--paper-dim);
+    font-size:16px;
+  }
+  .hero-cta{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;}
+  .btn{
+    font-family:var(--mono);font-size:13px;
+    padding:12px 18px;border-radius:6px;
+    text-decoration:none;
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid var(--line);
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn-primary{background:var(--amber);color:#1a1305;border-color:var(--amber);font-weight:600;}
+  .btn-primary:hover{background:#ffbf55;}
+  .btn-ghost{color:var(--paper);}
+  .btn-ghost:hover{border-color:var(--paper-dim);}
+
+  /* signal readout */
+  .console{
+    margin-top:44px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .console-bar{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 14px;
+    border-bottom:1px solid var(--line);
+    background:var(--panel-2);
+  }
+  .console-bar span{width:9px;height:9px;border-radius:50%;background:var(--line);}
+  .console-bar .label{
+    margin-left:8px;font-family:var(--mono);font-size:11px;color:var(--paper-dim);
+    letter-spacing:0.06em;
+  }
+  .console-body{padding:18px 20px;font-family:var(--mono);font-size:12.5px;color:var(--teal);}
+  .console-body .ln{opacity:0;animation:appear .4s ease forwards;white-space:pre-wrap;}
+  .console-body .ln:nth-child(1){animation-delay:.1s;}
+  .console-body .ln:nth-child(2){animation-delay:.5s;}
+  .console-body .ln:nth-child(3){animation-delay:.9s;}
+  .console-body .ln:nth-child(4){animation-delay:1.3s;color:var(--amber);}
+  @keyframes appear{to{opacity:1;}}
+  .cursor{display:inline-block;width:7px;height:13px;background:var(--amber);margin-left:2px;animation:blink 1s steps(1) infinite;vertical-align:-2px;}
+  @keyframes blink{50%{opacity:0;}}
+
+  .bars{display:flex;align-items:flex-end;gap:3px;height:28px;margin-top:14px;}
+  .bars i{
+    display:block;width:4px;background:var(--amber-dim);border-radius:2px;
+    animation:eq 1.6s ease-in-out infinite;
+  }
+  .bars i:nth-child(odd){background:var(--amber);}
+  .bars i:nth-child(1){height:40%;animation-delay:0s;}
+  .bars i:nth-child(2){height:80%;animation-delay:.1s;}
+  .bars i:nth-child(3){height:55%;animation-delay:.2s;}
+  .bars i:nth-child(4){height:95%;animation-delay:.3s;}
+  .bars i:nth-child(5){height:35%;animation-delay:.4s;}
+  .bars i:nth-child(6){height:70%;animation-delay:.5s;}
+  .bars i:nth-child(7){height:50%;animation-delay:.6s;}
+  .bars i:nth-child(8){height:85%;animation-delay:.7s;}
+  .bars i:nth-child(9){height:30%;animation-delay:.8s;}
+  .bars i:nth-child(10){height:60%;animation-delay:.9s;}
+  @keyframes eq{0%,100%{transform:scaleY(0.5);}50%{transform:scaleY(1);}}
+
+  /* ===== NOTE ===== */
+  .note{
+    max-width:920px;margin:36px auto 0;padding:0 24px;
+    font-family:var(--mono);font-size:12px;color:var(--paper-dim);
+  }
+  .note span{color:var(--teal);}
+
+  /* ===== STEPS ===== */
+  .step{
+    padding:64px 0;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:70px;
+  }
+  .step-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;}
+  .step-num{
+    font-family:var(--mono);font-size:13px;color:var(--paper-dim);
+    border:1px solid var(--line);padding:3px 8px;border-radius:5px;
+  }
+  .step h2{font-size:26px;color:var(--paper);margin-top:12px;}
+  .step p.desc{color:var(--paper-dim);max-width:60ch;margin-top:10px;font-size:15px;}
+
+  .step-grid{
+    display:grid;grid-template-columns:1.1fr 1fr;gap:32px;
+    margin-top:28px;align-items:start;
+  }
+  @media (max-width:760px){.step-grid{grid-template-columns:1fr;}}
+
+  /* mockup panel */
+  .mock{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .mock-bar{
+    display:flex;align-items:center;gap:6px;
+    padding:9px 12px;border-bottom:1px solid var(--line);
+    background:var(--panel-2);
+  }
+  .mock-bar span{width:8px;height:8px;border-radius:50%;background:var(--line);}
+  .mock-bar .tag{
+    margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--paper-dim);
+    letter-spacing:.05em;text-transform:uppercase;
+  }
+  .mock-body{padding:18px;font-size:13px;}
+
+  /* wallet mockup */
+  .wallet-row{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:7px;margin-bottom:8px;}
+  .wallet-icon{width:28px;height:28px;border-radius:7px;flex:none;}
+  .wallet-icon.w1{background:linear-gradient(135deg,#ffb238,#ff7a63);}
+  .wallet-icon.w2{background:linear-gradient(135deg,#5fd9c4,#3a8f81);}
+  .wallet-icon.w3{background:linear-gradient(135deg,#8a6cff,#4a3a99);}
+  .wallet-name{font-family:var(--mono);font-size:12.5px;}
+  .sign-btn{
+    margin-top:14px;width:100%;padding:10px;border-radius:7px;
+    background:var(--amber);color:#1a1305;border:none;
+    font-family:var(--mono);font-size:12.5px;font-weight:600;
+  }
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:var(--mono);font-size:10.5px;
+    padding:3px 8px;border-radius:20px;border:1px solid var(--line);
+    color:var(--paper-dim);margin-top:12px;
+  }
+  .badge .d{width:6px;height:6px;border-radius:50%;background:var(--teal);}
+
+  /* bounty board mockup */
+  .board-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--line);
+    font-size:12.5px;
+  }
+  .board-row:last-child{border-bottom:none;}
+  .board-title{font-weight:600;color:var(--paper);}
+  .board-tag{
+    font-family:var(--mono);font-size:9.5px;text-transform:uppercase;
+    padding:2px 7px;border-radius:4px;letter-spacing:.05em;
+  }
+  .board-tag.open{background:rgba(95,217,196,0.12);color:var(--teal);}
+  .board-tag.claimed{background:rgba(255,178,56,0.12);color:var(--amber);}
+  .board-tag.review{background:rgba(138,108,255,0.15);color:#b7a6ff;}
+  .board-amt{font-family:var(--mono);color:var(--paper-dim);font-size:11.5px;}
+
+  /* claim mockup */
+  .claim-card{border:1px solid var(--line);border-radius:8px;padding:14px;}
+  .claim-card .title{font-weight:600;font-size:13.5px;}
+  .claim-meta{display:flex;gap:14px;margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--paper-dim);}
+  .claim-btn{
+    margin-top:14px;width:100%;padding:9px;border-radius:6px;
+    background:transparent;border:1px solid var(--amber);color:var(--amber);
+    font-family:var(--mono);font-size:12px;font-weight:600;
+  }
+  .claim-btn.locked{background:var(--amber);color:#1a1305;border-color:var(--amber);}
+  .timer{
+    margin-top:10px;height:5px;border-radius:3px;background:var(--line);overflow:hidden;
+  }
+  .timer i{display:block;height:100%;width:64%;background:var(--teal);}
+
+  /* submit mockup */
+  .field{margin-bottom:10px;}
+  .field label{
+    display:block;font-family:var(--mono);font-size:10px;color:var(--paper-dim);
+    text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;
+  }
+  .field .box{
+    border:1px solid var(--line);border-radius:6px;padding:9px 10px;
+    font-size:12.5px;color:var(--paper-dim);background:var(--panel-2);
+  }
+  .submit-btn{
+    margin-top:6px;width:100%;padding:10px;border-radius:6px;
+    background:var(--teal);color:#062924;border:none;
+    font-family:var(--mono);font-size:12.5px;font-weight:600;
+  }
+
+  /* paid mockup */
+  .paid-check{
+    width:44px;height:44px;border-radius:50%;
+    background:rgba(95,217,196,0.12);
+    display:flex;align-items:center;justify-content:center;
+    margin:6px auto 14px;
+  }
+  .paid-check svg{width:22px;height:22px;stroke:var(--teal);}
+  .paid-amt{text-align:center;font-family:var(--mono);font-size:20px;color:var(--paper);}
+  .paid-sub{text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--paper-dim);margin-top:4px;}
+  .tx{
+    margin-top:14px;border-top:1px solid var(--line);padding-top:10px;
+    display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--paper-dim);
+  }
+
+  /* pitfall callout */
+  .pitfall{
+    margin-top:20px;
+    display:flex;gap:12px;
+    padding:14px 16px;
+    border:1px solid rgba(255,122,99,0.35);
+    background:rgba(255,122,99,0.06);
+    border-radius:8px;
+  }
+  .pitfall .ico{
+    flex:none;width:20px;height:20px;color:var(--danger);margin-top:1px;
+  }
+  .pitfall .body{font-size:13px;color:var(--paper);}
+  .pitfall .body b{color:var(--danger);font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:4px;}
+
+  /* ===== INTERFERENCE GRID ===== */
+  .section-head{padding-top:64px;}
+  .section-head p.sub{color:var(--paper-dim);max-width:60ch;margin-top:10px;font-size:15px;}
+
+  .grid4{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:28px;
+  }
+  @media (max-width:640px){.grid4{grid-template-columns:1fr;}}
+  .interference{
+    border:1px solid var(--line);border-radius:9px;padding:18px;background:var(--panel);
+  }
+  .interference .freq{font-family:var(--mono);font-size:11px;color:var(--danger);letter-spacing:.05em;}
+  .interference h3{font-size:15px;margin-top:8px;color:var(--paper);}
+  .interference p{font-size:13px;color:var(--paper-dim);margin:8px 0 0;}
+
+  /* ===== FAQ ===== */
+  .faq{padding:64px 0;}
+  details{
+    border-bottom:1px solid var(--line);
+    padding:18px 0;
+  }
+  details summary{
+    cursor:pointer;list-style:none;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    font-family:var(--mono);font-size:14px;color:var(--paper);
+  }
+  details summary::-webkit-details-marker{display:none;}
+  details summary::after{
+    content:"+";
+    font-size:18px;color:var(--amber);flex:none;
+    transition:transform .18s ease;
+  }
+  details[open] summary::after{content:"–";}
+  details p{color:var(--paper-dim);font-size:14px;margin:12px 0 0;max-width:66ch;}
+
+  /* ===== FOOTER ===== */
+  footer{
+    border-top:1px solid var(--line);
+    padding:40px 0 60px;
+  }
+  .foot-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+  footer .brand2{font-family:var(--mono);font-size:13px;color:var(--paper);}
+  footer .links{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;}
+  footer .links a{color:var(--paper-dim);text-decoration:none;}
+  footer .links a:hover{color:var(--amber);}
+  footer .credit{margin-top:24px;font-family:var(--mono);font-size:11px;color:var(--paper-dim);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="dot"></span>owockibot / dispatch</div>
+    <nav class="channels">
+      <a href="#connect">ch.01 connect</a>
+      <a href="#browse">ch.02 browse</a>
+      <a href="#claim">ch.03 claim</a>
+      <a href="#submit">ch.04 submit</a>
+      <a href="#paid">ch.05 get paid</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">builder onboarding · owockibot bounty board</div>
+    <h1>you're not farming bounties.<br>you're <em>on the dispatch.</em></h1>
+    <p class="sub">five channels sit between you and your first payout: connect, browse, claim, submit, get paid. tune through each one below before you touch the live board.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#connect">start at channel 01 →</a>
+      <a class="btn btn-ghost" href="#faq">skip to faq</a>
+    </div>
+
+    <div class="console">
+      <div class="console-bar"><span></span><span></span><span></span><div class="label">dispatch.log</div></div>
+      <div class="console-body">
+        <div class="ln">&gt; scanning bounty board...</div>
+        <div class="ln">&gt; 5 channels found. builder status: unverified</div>
+        <div class="ln">&gt; awaiting wallet signal<span class="cursor"></span></div>
+        <div class="ln">&gt; tip: no gas required to sign in</div>
+      </div>
+      <div class="mock-body">
+        <div class="bars">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<p class="note">note: the panels below are <span>illustrative mockups</span>, built to show the shape of each step, not live captures of the site. swap in real screenshots once you've grabbed them from the current UI.</p>
+
+<main class="wrap">
+
+  <!-- STEP 1 -->
+  <section class="step" id="connect">
+    <div class="step-head">
+      <span class="step-num">CH.01</span>
+      <div class="eyebrow">wallet</div>
+    </div>
+    <h2>connect your wallet</h2>
+    <p class="desc">owockibot checks who you are with a wallet signature, not a password. click connect, pick a wallet, sign the message it shows you. that signature proves you own the wallet. it costs no gas and moves no funds.</p>
+
+    <div class="step-grid">
+      <div class="mock">
+        <div class="mock-bar"><span></span><span></span><span></span><div class="tag">connect wallet</div></div>
+        <div class="mock-body">
+          <div class="wallet-row"><div class="wallet-icon w1"></div><div class="wallet-name">metamask</div></div>
+          <div class="wallet-row"><div class="wallet-icon w2"></div><div class="wallet-name">coinbase wallet</div></div>
+          <div class="wallet-row"><div class="wallet-icon w3"></div><div class="wallet-name">walletconnect</div></div>
+          <button class="sign-btn">sign message to verify</button>
+          <div class="badge"><span class="d"></span>0x4f...9a2c · correct network</div>
+        </div>
+      </div>
+      <div>
+        <p class="desc" style="margin-top:0;">what the signature actually does: it's a sign-in message (the eip-4361 standard, aka "sign-in with ethereum"), not a transaction. your wallet will say "sign" or "sign-in request," never "send" or "approve."</p>
+        <p class="desc">before you sign, check the network badge in the wallet popup matches what the bounty board expects. wrong network is the most common reason a "connect" turns into a mystery error.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+      <div class="body">
+        <b>watch for this</b>
+        signing in never costs gas and never moves funds. if a popup asks you to approve a transaction or spending limit just to log in, close it, you're not on the real page anymore.
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="browse">
+    <div class="step-head">
+      <span class="step-num">CH.02</span>
+      <div class="eyebrow">bounty board</div>
+    </div>
+    <h2>browse open bounties</h2>
+    <p class="desc">the board lists every bounty with its status, reward, and deadline. filter by tag if you know what you're looking for, otherwise scroll and read. every bounty links out to a full brief, read that before you commit to anything.</p>
+
+    <div class="step-grid">
+      <div class="mock">
+        <div class="mock-bar"><span></span><span></span><span></span><div class="tag">bounty board</div></div>
+        <div class="mock-body" style="padding:14px 18px;">
+          <div class="board-row">
+            <div><div class="board-title">agent coordination writeup</div><span class="board-tag open">open</span></div>
+            <div class="board-amt">120 usdc</div>
+          </div>
+          <div class="board-row">
+            <div><div class="board-title">api docs: bounty endpoints</div><span class="board-tag claimed">claimed</span></div>
+            <div class="board-amt">80 usdc</div>
+          </div>
+          <div class="board-row">
+            <div><div class="board-title">x thread: builder economy</div><span class="board-tag review">in review</span></div>
+            <div class="board-amt">50 usdc</div>
+          </div>
+          <div class="board-row">
+            <div><div class="board-title">community faq draft</div><span class="board-tag open">open</span></div>
+            <div class="board-amt">60 usdc</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="desc" style="margin-top:0;">status tags to know: <b style="color:var(--teal);font-family:var(--mono);">open</b> means anyone can claim it, <b style="color:var(--amber);font-family:var(--mono);">claimed</b> means someone's working it, <b style="color:#b7a6ff;font-family:var(--mono);">in review</b> means a submission's already in and being checked.</p>
+        <p class="desc">reward amount and deadline live on the card, but scope, format, and acceptance criteria live in the full brief. that's where most of the useful detail is.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+      <div class="body">
+        <b>watch for this</b>
+        the card title is a summary, not the spec. skimming it and claiming anyway is the fastest way to submit something that's off-scope and get sent back for a rewrite.
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="claim">
+    <div class="step-head">
+      <span class="step-num">CH.03</span>
+      <div class="eyebrow">lock it in</div>
+    </div>
+    <h2>claim a bounty</h2>
+    <p class="desc">hit claim and the bounty locks under your wallet for a set window. it moves into "my claims" and off the open list, so nobody else can grab it while you're working.</p>
+
+    <div class="step-grid">
+      <div class="mock">
+        <div class="mock-bar"><span></span><span></span><span></span><div class="tag">bounty detail</div></div>
+        <div class="mock-body">
+          <div class="claim-card">
+            <div class="title">agent coordination writeup</div>
+            <div class="claim-meta"><span>120 usdc</span><span>claim window: 5 days</span></div>
+            <div class="timer"><i></i></div>
+            <button class="claim-btn locked">claimed by you · 3d 4h left</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="desc" style="margin-top:0;">the claim window is a courtesy clock, not a hard deadline enforced mid-write. it's there so bounties don't sit locked and untouched while everyone else assumes it's taken.</p>
+        <p class="desc">if you claim something and realize partway through it's not for you, drop it. an open bounty someone else can finish beats a claimed one that quietly expires.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+      <div class="body">
+        <b>watch for this</b>
+        claim windows expire. check the exact window on the bounty board before you commit, "a few days" here means whatever the timer actually says, not a rough guess.
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" id="submit">
+    <div class="step-head">
+      <span class="step-num">CH.04</span>
+      <div class="eyebrow">handoff</div>
+    </div>
+    <h2>submit your work</h2>
+    <p class="desc">drop a link to the finished piece, add a short note on what you did, and submit. status flips to "in review" and a reviewer takes it from there.</p>
+
+    <div class="step-grid">
+      <div class="mock">
+        <div class="mock-bar"><span></span><span></span><span></span><div class="tag">submit form</div></div>
+        <div class="mock-body">
+          <div class="field"><label>submission link</label><div class="box">github.com/you/repo/blob/main/post.html</div></div>
+          <div class="field"><label>notes for reviewer</label><div class="box">published to pages, covers coordination patterns as scoped in the brief.</div></div>
+          <button class="submit-btn">submit for review</button>
+        </div>
+      </div>
+      <div>
+        <p class="desc" style="margin-top:0;">the link has to actually resolve for a reviewer with no context: public repo, published page, not a local draft or a private doc only you can open.</p>
+        <p class="desc">match the format the brief asked for. if it wanted a published page, a raw markdown file in an unmerged branch isn't the same thing, even if the content is done.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+      <div class="body">
+        <b>watch for this</b>
+        a broken or private link is the single biggest cause of review delays. open your submission link in a private/incognito window before you submit, that's what the reviewer sees.
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step" id="paid" style="border-bottom:none;">
+    <div class="step-head">
+      <span class="step-num">CH.05</span>
+      <div class="eyebrow">payout</div>
+    </div>
+    <h2>get paid</h2>
+    <p class="desc">once a reviewer approves the submission, payout fires on-chain to the wallet you connected back in channel 01. the transaction hash gets logged against the bounty so there's a record either side can check.</p>
+
+    <div class="step-grid">
+      <div class="mock">
+        <div class="mock-bar"><span></span><span></span><span></span><div class="tag">payout confirmed</div></div>
+        <div class="mock-body">
+          <div class="paid-check"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+          <div class="paid-amt">+120 usdc</div>
+          <div class="paid-sub">agent coordination writeup</div>
+          <div class="tx"><span>tx hash</span><span>0x8e2...c41f</span></div>
+          <div class="tx"><span>wallet</span><span>0x4f...9a2c</span></div>
+        </div>
+      </div>
+      <div>
+        <p class="desc" style="margin-top:0;">if a submission needs changes instead of approval, it bounces back to you with reviewer notes rather than getting rejected outright. fix and resubmit through the same flow.</p>
+        <p class="desc">payout always goes to the wallet on file for that claim. it's set the moment you connect in channel 01, not the moment you submit.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+      <div class="body">
+        <b>watch for this</b>
+        switching wallets between claiming and getting paid sends the payout to whichever wallet was connected when you claimed, not your current one. stick with one wallet for the whole flow.
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERFERENCE / PITFALLS SUMMARY -->
+  <section class="section-head" id="interference">
+    <div class="eyebrow">field notes</div>
+    <h2 style="font-size:26px;margin-top:12px;color:var(--paper);">known interference</h2>
+    <p class="sub">the five mistakes that show up most across every channel. worth a scan before your first run.</p>
+
+    <div class="grid4">
+      <div class="interference">
+        <div class="freq">01 · wrong network</div>
+        <h3>signature fails silently</h3>
+        <p>your wallet's on a different network than the board expects. check the network badge before you sign, not after it errors out.</p>
+      </div>
+      <div class="interference">
+        <div class="freq">02 · unread brief</div>
+        <h3>scope mismatch</h3>
+        <p>the card title isn't the spec. open the full brief before you claim, not after you've already started writing.</p>
+      </div>
+      <div class="interference">
+        <div class="freq">03 · expired claim</div>
+        <h3>timer runs out mid-work</h3>
+        <p>claim windows are real deadlines. if you can't finish in time, drop the claim early instead of letting it lapse.</p>
+      </div>
+      <div class="interference">
+        <div class="freq">04 · format mismatch</div>
+        <h3>link doesn't resolve</h3>
+        <p>private repos, local drafts, unpublished pages. test your submission link in an incognito tab before you send it.</p>
+      </div>
+      <div class="interference">
+        <div class="freq">05 · wallet switch</div>
+        <h3>payout to the wrong address</h3>
+        <p>payout follows the wallet connected at claim time. don't swap wallets mid-flow unless you're prepared to lose the payout to the old one.</p>
+      </div>
+      <div class="interference">
+        <div class="freq">06 · gas confusion</div>
+        <h3>paying for a free step</h3>
+        <p>connecting and signing in cost no gas. if your wallet's asking you to pay for either, something's off, stop and double check the site.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq" id="faq">
+    <div class="eyebrow">frequency check</div>
+    <h2 style="font-size:26px;margin-top:12px;color:var(--paper);">faq</h2>
+
+    <details>
+      <summary>do i need eth or gas to connect and sign in?</summary>
+      <p>no. connecting your wallet and signing the verification message are both free. gas only enters the picture if a bounty explicitly involves an on-chain transaction as part of the deliverable, which the brief will say up front.</p>
+    </details>
+    <details>
+      <summary>can i claim more than one bounty at once?</summary>
+      <p>check the bounty board itself for your current claim limit, it's shown per-account and can change. treat it as the source of truth over anything written here.</p>
+    </details>
+    <details>
+      <summary>what happens if i miss my claim deadline?</summary>
+      <p>the bounty reopens and goes back to "open" status for anyone to claim. no penalty beyond losing your spot, so it's worth dropping a claim early if you know you won't finish.</p>
+    </details>
+    <details>
+      <summary>how long does payout take after a submission's approved?</summary>
+      <p>payout fires once a reviewer marks the submission approved. exact timing depends on the review cycle for that bounty, check the board or ask in the builder channel if it's been a while.</p>
+    </details>
+    <details>
+      <summary>i don't have a wallet yet. where do i start?</summary>
+      <p>any standard wallet that supports message signing works, metamask and coinbase wallet are the most common starting points. install the wallet, create or import an account, then come back to channel 01.</p>
+    </details>
+    <details>
+      <summary>my submission got sent back. did i lose the bounty?</summary>
+      <p>no. "changes requested" isn't a rejection, it's reviewer notes. fix what's flagged and resubmit through the same claim, you don't need to reclaim it.</p>
+    </details>
+    <details>
+      <summary>where do i ask questions that aren't covered here?</summary>
+      <p>drop into the builder community channel linked in the footer below. that's also the fastest way to flag a bug in the flow itself.</p>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="brand2">owockibot / dispatch</div>
+      <div class="links">
+        <a href="#connect">onboarding</a>
+        <a href="#">bounty board</a>
+        <a href="#">docs</a>
+        <a href="#">builder channel</a>
+      </div>
+    </div>
+    <div class="credit">standalone onboarding page · html/css only · drop into owockibot.xyz as a new route or open as a pr</div>
+  </div>
+</footer>
+
+</body>
+</html>
